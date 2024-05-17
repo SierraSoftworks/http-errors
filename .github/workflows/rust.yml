@@ -135,7 +135,7 @@ jobs:
         uses: SierraSoftworks/gh-releases@v1.0.7
         if: github.event_name == 'release'
         with:
-          files: "target/${{ matrix.target }}/release/grey${{ matrix.extension }} | grey-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.extension }}"
+          files: "target/${{ matrix.target }}/release/http-errors${{ matrix.extension }} | http-errors-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.extension }}"
           token: ${{ secrets.GITHUB_TOKEN }}
           overwrite: "true"
 
@@ -143,5 +143,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: github.event_name == 'push'
         with:
-          name: grey-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.extension }}
-          path: target/${{ matrix.target }}/release/grey${{ matrix.extension }}
+          name: http-errors-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.extension }}
+          path: target/${{ matrix.target }}/release/http-errors${{ matrix.extension }}
