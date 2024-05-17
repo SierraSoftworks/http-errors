@@ -1,7 +1,6 @@
 name: Rust
 on:
-  push:
-    tags-ignore: v.*
+  push: {}
   release:
     types: [published]
 
