@@ -3,52 +3,38 @@ use std::convert::Infallible;
 
 use http_body_util::Full;
 use hyper::body::Bytes;
-use hyper::rt::{Read, Write};
-use hyper::server::conn::http1;
 use hyper::service::Service;
 use hyper::{Request, Response, StatusCode};
-use hyper_util::rt::TokioTimer;
-use log::{debug, error};
 use std::future::{ready, Ready};
-use std::net::SocketAddr;
 
 use crate::errors::{ErrorType, ERRORS};
 
-pub async fn handle_connection<I>(io: I, addr: SocketAddr)
-where
-    I: Read + Write + Unpin,
-{
-    debug!("Handling new incoming connection from {addr}");
-    let conn = http1::Builder::new()
-        .keep_alive(true)
-        .timer(TokioTimer::new())
-        .serve_connection(io, ErrorService::new());
-
-    if let Err(err) = conn.await {
-        error!("Error serving connection from {addr}: {err:?}");
-    }
-}
-
-struct ErrorService {
+#[derive(Clone)]
+pub struct ErrorService {
     default: Response<Full<Bytes>>,
     cache: HashMap<String, Response<Full<Bytes>>>,
 }
 
 impl ErrorService {
-    fn new() -> Self {
+    pub fn new(default_status: StatusCode) -> Self {
         let mut cache = HashMap::new();
 
-        for error in ERRORS.iter() {
-            let response: Response<Full<Bytes>> = error.clone().into();
-            cache.insert(error.path(), response);
-        }
-
-        let default = ErrorType::new(
+        let mut default = ErrorType::new(
             StatusCode::NOT_IMPLEMENTED,
             "Not Implemented",
             "The requested service is not available at this endpoint.",
         )
         .into();
+
+        for error in ERRORS.iter() {
+            let response: Response<Full<Bytes>> = error.clone().into();
+
+            if error.code() == default_status {
+                default = response.clone();
+            }
+
+            cache.insert(error.path(), response);
+        }
 
         Self { cache, default }
     }
@@ -76,7 +62,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_handle() {
-        let service = ErrorService::new();
+        let service = ErrorService::new(StatusCode::NOT_FOUND);
 
         for error in ERRORS.iter() {
             let req = Request::builder()

@@ -98,7 +98,7 @@ impl ErrorType {
     }
 
     pub fn path(&self) -> String {
-        format!("/{}", self.code.as_u16())
+        format!("/.well-known/http-{}", self.code.as_u16())
     }
 }
 
