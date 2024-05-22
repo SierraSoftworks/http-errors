@@ -12,7 +12,7 @@ pub fn template_replace<V: AsRef<str>>(template: &str, vars: HashMap<&'static st
                 } else {
                     result.push_str(&format!("{{{{{}}}}}", var));
                 }
-            },
+            }
         }
     }
 
@@ -20,10 +20,7 @@ pub fn template_replace<V: AsRef<str>>(template: &str, vars: HashMap<&'static st
 }
 
 fn template_iter(template: &str) -> TemplateIter<'_> {
-    TemplateIter {
-        template,
-        pos: 0,
-    }
+    TemplateIter { template, pos: 0 }
 }
 
 #[derive(Debug, PartialEq)]
@@ -50,21 +47,23 @@ impl<'a> Iterator for TemplateIter<'a> {
             Some(next) if next > 0 => {
                 self.pos = start + next;
                 Some(TemplateToken::Text(&self.template[start..self.pos]))
-            },
+            }
             Some(next) => {
                 let var_start = start + next + 2;
                 if let Some(var_end) = self.template[var_start..].find("}}") {
                     self.pos = var_start + var_end + 2;
-                    Some(TemplateToken::Var(&self.template[var_start..var_start+var_end]))
+                    Some(TemplateToken::Var(
+                        &self.template[var_start..var_start + var_end],
+                    ))
                 } else {
                     self.pos = start + next + 2;
                     Some(TemplateToken::Text(&self.template[start..self.pos]))
                 }
-            },
+            }
             None => {
                 self.pos = self.template.len();
                 Some(TemplateToken::Text(&self.template[start..]))
-            },
+            }
         }
     }
 }
@@ -96,6 +95,9 @@ mod tests {
         let mut vars = HashMap::new();
         vars.insert("name", "world");
         vars.insert("system", "emergency broadcast");
-        assert_eq!(template_replace(template, vars), "Hello, world! This is a test of the emergency broadcast system.");
+        assert_eq!(
+            template_replace(template, vars),
+            "Hello, world! This is a test of the emergency broadcast system."
+        );
     }
 }

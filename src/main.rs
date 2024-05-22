@@ -5,6 +5,7 @@ use log::info;
 use tokio::net::TcpListener;
 
 mod assets;
+mod errors;
 mod server;
 mod template;
 
@@ -12,7 +13,8 @@ mod template;
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     pretty_env_logger::init();
 
-    let port = std::env::var("PORT").ok()
+    let port = std::env::var("PORT")
+        .ok()
         .and_then(|v| v.parse().ok())
         .unwrap_or(3000);
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
@@ -22,7 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     loop {
         let (stream, addr) = listener.accept().await?;
-        
+
         let io = TokioIo::new(stream);
         tokio::task::spawn(async move {
             server::handle_connection(io, addr).await;
