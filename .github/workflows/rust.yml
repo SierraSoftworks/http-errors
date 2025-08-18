@@ -130,7 +130,7 @@ jobs:
           args: --release --target ${{ matrix.target }}
 
       - name: Upload GitHub Release Artifacts
-        uses: SierraSoftworks/gh-releases@v1.0.7
+        uses: SierraSoftworks/gh-releases@v1.0.8
         if: github.event_name == 'release'
         with:
           files: "target/${{ matrix.target }}/release/http-errors${{ matrix.extension }} | http-errors-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.extension }}"
