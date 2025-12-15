@@ -25,7 +25,7 @@ jobs:
         run: sed -i "s/^version\s*=\s*\".*\"/version = \"$VERSION\"/g" Cargo.toml
 
       - name: Stash Versioned Cargo.toml
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: cargofile
           path: Cargo.toml
@@ -138,7 +138,7 @@ jobs:
           overwrite: "true"
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: github.event_name == 'push'
         with:
           name: http-errors-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.extension }}
